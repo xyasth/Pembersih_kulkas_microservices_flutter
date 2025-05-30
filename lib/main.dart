@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'homePage.dart';
+import 'view/homePage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -59,7 +59,7 @@ class _RecipeListPageState extends State<RecipeListPage> {
             );
           }
         },
-      ),
+      ), 
     );
   }
 }
