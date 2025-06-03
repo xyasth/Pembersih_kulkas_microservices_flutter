@@ -18,8 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:pembersih_kulkas/view/prompt_view.dart';
 
 class RecipeView extends StatefulWidget {
@@ -71,7 +71,7 @@ class _RecipeViewState extends State<RecipeView> {
           final recipe = data['data']['ai_response']['message'];
 
           // Save the recipe to Firebase Firestore
-          await _saveRecipeToFirebase(recipe);
+          // await _saveRecipeToFirebase(recipe);
 
           setState(() {
             _recipe = recipe;
@@ -98,75 +98,75 @@ class _RecipeViewState extends State<RecipeView> {
     }
   }
 
-  Future<void> _saveRecipeToFirebase(String recipe) async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        final userId = user.uid;
+  // Future<void> _saveRecipeToFirebase(String recipe) async {
+  //   try {
+  //     final user = FirebaseAuth.instance.currentUser;
+  //     if (user != null) {
+  //       final userId = user.uid;
 
-        // Add the recipe to the user's history in Firestore
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .update({
-          'history': FieldValue.arrayUnion([recipe]),
-        });
+  //       // Add the recipe to the user's history in Firestore
+  //       await FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(userId)
+  //           .update({
+  //         'history': FieldValue.arrayUnion([recipe]),
+  //       });
 
-        print('Recipe saved to Firebase history.');
-      } else {
-        print('No user is currently logged in.');
-      }
-    } catch (e) {
-      print('Error saving recipe to Firebase: $e');
-    }
-  }
+  //       print('Recipe saved to Firebase history.');
+  //     } else {
+  //       print('No user is currently logged in.');
+  //     }
+  //   } catch (e) {
+  //     print('Error saving recipe to Firebase: $e');
+  //   }
+  // }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Hasil Resep'),
-        automaticallyImplyLeading: false,
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _recipe,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate back to PromptView
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PromptView(),
-                            ),
-                          );
-                        },
-                        child: const Text('Prompt Kembali'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate back to the home page
-                          Navigator.popUntil(context, (route) => route.isFirst);
-                        },
-                        child: const Text('Kembali ke Home'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Hasil Resep'),
+//         automaticallyImplyLeading: false,
+//       ),
+//       body: _isLoading
+//           ? const Center(child: CircularProgressIndicator())
+//           : Padding(
+//               padding: const EdgeInsets.all(16.0),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Text(
+//                     _recipe,
+//                     style: const TextStyle(fontSize: 16),
+//                   ),
+//                   const SizedBox(height: 20),
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+//                     children: [
+//                       ElevatedButton(
+//                         onPressed: () {
+//                           // Navigate back to PromptView
+//                           Navigator.pushReplacement(
+//                             context,
+//                             // MaterialPageRoute(
+//                             //   builder: (context) => const PromptView(),
+//                             // ),
+//                           );
+//                         },
+//                         child: const Text('Prompt Kembali'),
+//                       ),
+//                       ElevatedButton(
+//                         onPressed: () {
+//                           // Navigate back to the home page
+//                           Navigator.popUntil(context, (route) => route.isFirst);
+//                         },
+//                         child: const Text('Kembali ke Home'),
+//                       ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//     );
+//   }
+// }
