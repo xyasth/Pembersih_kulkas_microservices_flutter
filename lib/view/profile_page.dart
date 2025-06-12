@@ -1,109 +1,90 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/profile_viewmodel.dart';
+import '../models/profile_model.dart';
 
-// Versi ProfilePage tanpa Scaffold - hanya konten saja
-class ProfilePageContent extends StatelessWidget {
-  const ProfilePageContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ProfileViewModel()..loadProfiles(),
-      child: Consumer<ProfileViewModel>(
-        builder: (context, vm, _) {
-          if (vm.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (vm.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.red,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error: ${vm.error}',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (vm.profiles.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.people_outline,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'No profiles found.',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(8.0),
-            itemCount: vm.profiles.length,
-            itemBuilder: (context, index) {
-              final user = vm.profiles[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4.0),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    child: Text(
-                      user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
-                    ),
-                  ),
-                  title: Text(
-                    user.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(user.email),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    // Handle profile tap if needed
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Tapped on ${user.name}'),
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-}
-
-// Tetap pertahankan ProfilePage asli untuk penggunaan standalone
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('User Profiles')),
-      body: const ProfilePageContent(),
+    return ChangeNotifierProvider(
+      create: (_) => ProfileViewModel()..loadProfiles(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('User Profile'),
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+        ),
+        body: Consumer<ProfileViewModel>(
+          builder: (context, viewModel, child) {
+            final profile = viewModel.currentProfile;
+            return profile == null
+                ? const Center(child: CircularProgressIndicator())
+                : Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildProfileSection(profile),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Service History',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 12),
+                        Expanded(child: _buildServiceHistoryList()),
+                      ],
+                    ),
+                  );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileSection(Profile profile) {
+    return Card(
+      elevation: 2,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.blue,
+          child: Text(
+              profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
+              style: const TextStyle(color: Colors.white)),
+        ),
+        title: Text(profile.name,
+            style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(profile.email),
+      ),
+    );
+  }
+
+  Widget _buildServiceHistoryList() {
+    final dummyHistory = List.generate(
+        5,
+        (index) => {
+              'title': 'Service #${index + 1}',
+              'description': 'Detail of service performed...',
+              'date': '2025-06-${10 + index}'
+            });
+
+    return ListView.builder(
+      itemCount: dummyHistory.length,
+      itemBuilder: (context, index) {
+        final item = dummyHistory[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            leading: const Icon(Icons.history, color: Colors.blue),
+            title: Text(item['title']!),
+            subtitle: Text(item['description']!),
+            trailing:
+                Text(item['date']!, style: const TextStyle(color: Colors.grey)),
+          ),
+        );
+      },
     );
   }
 }
