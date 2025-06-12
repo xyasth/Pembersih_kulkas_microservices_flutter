@@ -48,6 +48,9 @@ class ProfileViewModel extends ChangeNotifier {
 
     try {
       _profiles = await _profileService.getAllProfiles();
+      if (_profiles.isNotEmpty) {
+        _currentProfile = _profiles.first;
+      }
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
@@ -76,7 +79,8 @@ class ProfileViewModel extends ChangeNotifier {
 
   // Create new profile
   Future<bool> createProfile() async {
-    if (nameController.text.trim().isEmpty || emailController.text.trim().isEmpty) {
+    if (nameController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty) {
       _setError('Name and email are required');
       return false;
     }
@@ -116,7 +120,8 @@ class ProfileViewModel extends ChangeNotifier {
       return false;
     }
 
-    if (nameController.text.trim().isEmpty || emailController.text.trim().isEmpty) {
+    if (nameController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty) {
       _setError('Name and email are required');
       return false;
     }
@@ -136,13 +141,13 @@ class ProfileViewModel extends ChangeNotifier {
       );
 
       final result = await _profileService.updateProfile(updatedProfile);
-      
+
       // Update in local list
       final index = _profiles.indexWhere((p) => p.id == result.id);
       if (index != -1) {
         _profiles[index] = result;
       }
-      
+
       _currentProfile = result;
       notifyListeners();
       return true;
