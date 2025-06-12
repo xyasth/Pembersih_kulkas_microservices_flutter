@@ -22,9 +22,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Resep Makanan'),
+        title: const Text('Resep Makanan'),
+        backgroundColor: Colors.deepOrange,
         centerTitle: true,
-        backgroundColor: Colors.orange,
       ),
       body: FutureBuilder<List<Recipe>>(
         future: _recipes,
@@ -46,41 +46,70 @@ class _HomePageState extends State<HomePage> {
           final recipes = snapshot.data;
 
           if (recipes == null || recipes.isEmpty) {
-            return const Center(child: Text('Tidak ada resep tersedia.'));
+            return const Center(child: Text('Tidak ada resep ditemukan.'));
           }
 
-          return ListView.builder(
-            itemCount: recipes.length,
-            itemBuilder: (context, index) {
-              final recipe = recipes[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 4,
-                child: ListTile(
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      recipe.imageUrl,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image),
-                    ),
+          return Padding(
+            padding: const EdgeInsets.all(10),
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // Dua kolom
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 0.75, // Tinggi dibanding lebar
+              ),
+              itemCount: recipes.length,
+              itemBuilder: (context, index) {
+                final recipe = recipes[index];
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  title: Text(
-                    recipe.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  elevation: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(12)),
+                              // child: Image.network('https://picsum.photos/200/300')
+                          child: Image.network(
+                            recipe.imageUrl,
+                            headers: {
+                              'User-Agent':'mozilla'
+                            },
+                            fit: BoxFit.cover,
+                            // ⬇️ Tambahkan ini untuk indikator loading
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            },
+                            // ⬇️ Tambahkan ini untuk handle error saat gambar gagal dimuat
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Center(
+                                child: Icon(Icons.broken_image,
+                                    size: 48, color: Colors.grey),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          recipe.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
                   ),
-                  onTap: () {
-                    // Aksi ketika item diklik, misalnya navigate ke detail page
-                    // Navigator.push(...);
-                  },
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
