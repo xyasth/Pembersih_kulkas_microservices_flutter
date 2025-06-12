@@ -53,7 +53,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Recipe Manager'),
-          backgroundColor: Colors.orange,
+          backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
           bottom: TabBar(
             controller: _tabController,
@@ -63,7 +63,6 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
             tabs: const [
               Tab(text: 'Create Recipe', icon: Icon(Icons.create)),
               Tab(text: 'AI Generate', icon: Icon(Icons.auto_awesome)),
-              Tab(text: 'View Recipe', icon: Icon(Icons.visibility)),
             ],
           ),
         ),
@@ -72,7 +71,6 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
           children: [
             _buildCreateRecipeTab(),
             _buildAIGenerateTab(),
-            _buildViewRecipeTab(),
           ],
         ),
       ),
@@ -184,7 +182,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Colors.deepPurple,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -528,7 +526,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Colors.deepPurple,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -571,7 +569,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
           children: [
             Row(
               children: [
-                const Icon(Icons.auto_awesome, color: Colors.orange),
+                const Icon(Icons.auto_awesome, color: Colors.deepPurple),
                 const SizedBox(width: 8),
                 const Text(
                   'Generated Recipe',
@@ -628,96 +626,6 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildViewRecipeTab() {
-    return Consumer<RecipeViewModel>(
-      builder: (context, viewModel, child) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'View Recipe',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-
-              // Recipe ID input
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _getRecipeIdController,
-                      decoration: const InputDecoration(
-                        labelText: 'Recipe ID',
-                        border: OutlineInputBorder(),
-                        hintText: 'Enter recipe ID to view',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: viewModel.isLoading
-                        ? null
-                        : () async {
-                            if (_getRecipeIdController.text.trim().isNotEmpty) {
-                              await viewModel.getRecipe(
-                                  _getRecipeIdController.text.trim());
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: viewModel.isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text('Get Recipe'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Error message
-              if (viewModel.error != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.red.shade200),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    viewModel.error!,
-                    style: TextStyle(color: Colors.red.shade700),
-                  ),
-                ),
-
-              // Recipe display
-              Expanded(
-                child: viewModel.currentRecipe != null
-                    ? _buildRecipeDisplay(viewModel.currentRecipe!)
-                    : const Center(
-                        child: Text(
-                          'Enter a recipe ID to view the recipe',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildRecipeDisplay(Recipe recipe) {
     return SingleChildScrollView(
       child: Card(
@@ -733,7 +641,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                     recipe.generatedByAI
                         ? Icons.auto_awesome
                         : Icons.restaurant,
-                    color: Colors.orange,
+                    color: Colors.deepPurple,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -751,13 +659,13 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade100,
+                    color: Colors.deepPurple.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     'AI Generated',
                     style: TextStyle(
-                      color: Colors.orange.shade800,
+                      color: Colors.deepPurple.shade800,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -852,7 +760,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                                 children: [
                                   CircleAvatar(
                                     radius: 12,
-                                    backgroundColor: Colors.orange,
+                                    backgroundColor: Colors.deepPurple,
                                     child: Text(
                                       '${entry.key + 1}',
                                       style: const TextStyle(
