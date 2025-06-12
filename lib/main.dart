@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pembersih_kulkas_microservice_flutter/view/MainNavigation.dart';
 import 'package:pembersih_kulkas_microservice_flutter/view/chat_page.dart';
 
 void main() {
@@ -10,8 +11,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: ChatPage(),
+    return MaterialApp(
+      title: 'Your App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MainNavigation(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
