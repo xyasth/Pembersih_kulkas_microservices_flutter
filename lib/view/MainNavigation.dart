@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../view/chat_page.dart';
 import '../view/profile_page.dart';
+import '../view/home_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -15,6 +16,7 @@ class _MainNavigationState extends State<MainNavigation> {
   static final List<Widget> _pages = <Widget>[
     ChatPage(),
     ProfilePage(),
+    HomePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -38,6 +40,10 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
+            ),
+            BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'HomaPage',
           ),
         ],
       ),
