@@ -11,6 +11,7 @@ class RecipeViewModel extends ChangeNotifier {
   String? _error;
   Recipe? _currentRecipe;
   Recipe? _generatedRecipe;
+  List<Recipe> _allRecipes = [];
 
   // Form controllers and data
   final TextEditingController nameController = TextEditingController();
@@ -22,14 +23,21 @@ class RecipeViewModel extends ChangeNotifier {
   List<String> _steps = [];
   List<String> _aiIngredients = [];
 
+  // Editing state
+  bool _isEditing = false;
+  String? _editingRecipeId;
+
   // Getters
   bool get isLoading => _isLoading;
   String? get error => _error;
   Recipe? get currentRecipe => _currentRecipe;
   Recipe? get generatedRecipe => _generatedRecipe;
+  List<Recipe> get allRecipes => _allRecipes;
   List<Ingredient> get ingredients => _ingredients;
   List<String> get steps => _steps;
   List<String> get aiIngredients => _aiIngredients;
+  bool get isEditing => _isEditing;
+  String? get editingRecipeId => _editingRecipeId;
 
   void _setLoading(bool loading) {
     _isLoading = loading;
@@ -90,6 +98,21 @@ class RecipeViewModel extends ChangeNotifier {
     }
   }
 
+  // Get all recipes
+  Future<void> getAllRecipes() async {
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      _allRecipes = await _recipeService.getAllRecipes();
+      _setLoading(false);
+    } catch (e) {
+      _setError(e.toString());
+      _allRecipes = [];
+      _setLoading(false);
+    }
+  }
+
   // Create recipe
   Future<bool> createRecipe() async {
     if (nameController.text.trim().isEmpty ||
@@ -120,6 +143,9 @@ class RecipeViewModel extends ChangeNotifier {
       await _recipeService.createRecipe(recipe);
       _clearForm();
       _setLoading(false);
+
+      // Refresh the recipes list
+      getAllRecipes();
       return true;
     } catch (e) {
       _setError(e.toString());
@@ -140,6 +166,105 @@ class RecipeViewModel extends ChangeNotifier {
       _setError(e.toString());
       _currentRecipe = null;
       _setLoading(false);
+    }
+  }
+
+  // Populate form for editing
+  void populateFormForEditing(Recipe recipe) {
+    _isEditing = true;
+    _editingRecipeId = recipe.id;
+
+    nameController.text = recipe.name;
+    cookingTimeController.text = recipe.cookingTime;
+    cuisineController.text = recipe.cuisine ?? '';
+    dietController.text = recipe.dietaryInfo ?? '';
+
+    _ingredients = List<Ingredient>.from(recipe.ingredients);
+    _steps = List<String>.from(recipe.steps);
+
+    notifyListeners();
+  }
+
+  // Update recipe
+  Future<bool> updateRecipe() async {
+    if (_editingRecipeId == null) {
+      _setError('No recipe selected for editing');
+      return false;
+    }
+
+    if (nameController.text.trim().isEmpty ||
+        _ingredients.isEmpty ||
+        _steps.isEmpty ||
+        cookingTimeController.text.trim().isEmpty) {
+      _setError('Please fill in all required fields');
+      return false;
+    }
+
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      final recipe = Recipe(
+        id: _editingRecipeId,
+        name: nameController.text.trim(),
+        ingredients: _ingredients,
+        steps: _steps,
+        cookingTime: cookingTimeController.text.trim(),
+        cuisine: cuisineController.text.trim().isEmpty
+            ? null
+            : cuisineController.text.trim(),
+        dietaryInfo: dietController.text.trim().isEmpty
+            ? null
+            : dietController.text.trim(),
+      );
+
+      await _recipeService.updateRecipe(_editingRecipeId!, recipe);
+      _clearForm();
+      _exitEditingMode();
+      _setLoading(false);
+
+      // Refresh the recipes list
+      getAllRecipes();
+      return true;
+    } catch (e) {
+      _setError(e.toString());
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  // Delete recipe
+  Future<bool> deleteRecipe(String id) async {
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      final success = await _recipeService.deleteRecipe(id);
+      _setLoading(false);
+
+      if (success) {
+        // Remove from local list if deletion was successful
+        _allRecipes.removeWhere((recipe) => recipe.id == id);
+
+        // If we're currently viewing the deleted recipe, clear it
+        if (_currentRecipe?.id == id) {
+          _currentRecipe = null;
+        }
+
+        // If we're editing the deleted recipe, exit editing mode
+        if (_editingRecipeId == id) {
+          _exitEditingMode();
+          _clearForm();
+        }
+
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _setError(e.toString());
+      _setLoading(false);
+      return false;
     }
   }
 
@@ -175,6 +300,25 @@ class RecipeViewModel extends ChangeNotifier {
     }
   }
 
+  // Use generated recipe as template for new recipe
+  void useGeneratedRecipe() {
+    if (_generatedRecipe == null) return;
+
+    nameController.text = _generatedRecipe!.name;
+    cookingTimeController.text = _generatedRecipe!.cookingTime;
+    cuisineController.text = _generatedRecipe!.cuisine ?? '';
+    dietController.text = _generatedRecipe!.dietaryInfo ?? '';
+
+    _ingredients = List<Ingredient>.from(_generatedRecipe!.ingredients);
+    _steps = List<String>.from(_generatedRecipe!.steps);
+
+    // Clear AI form and generated recipe
+    _aiIngredients.clear();
+    _generatedRecipe = null;
+
+    notifyListeners();
+  }
+
   // Upload image
   Future<String?> uploadImage(File imageFile) async {
     _setLoading(true);
@@ -189,6 +333,18 @@ class RecipeViewModel extends ChangeNotifier {
       _setLoading(false);
       return null;
     }
+  }
+
+  // Exit editing mode
+  void _exitEditingMode() {
+    _isEditing = false;
+    _editingRecipeId = null;
+  }
+
+  // Cancel editing
+  void cancelEditing() {
+    _exitEditingMode();
+    _clearForm();
   }
 
   // Clear form
