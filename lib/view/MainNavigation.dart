@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pembersih_kulkas_microservice_flutter/view/home_page.dart';
 import '../view/chat_page.dart';
 import '../view/profile_page.dart';
 import '../view/kulkasku_page.dart';
@@ -14,9 +15,10 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
   static final List<Widget> _pages = <Widget>[
+    HomePage(),
     ChatPage(),
-    ProfilePage(),
     IngredientsListView(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -34,16 +36,20 @@ class _MainNavigationState extends State<MainNavigation> {
         onTap: _onItemTapped,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.chat),
             label: 'Chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'kulkasku',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'kulkasku',
+            label: 'Profile',
           ),
         ],
       ),
