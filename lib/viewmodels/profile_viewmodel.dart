@@ -1,5 +1,7 @@
 // viewmodels/profile_viewmodel.dart
 import 'package:flutter/material.dart';
+import 'package:pembersih_kulkas_microservice_flutter/models/chat_model.dart';
+import 'package:pembersih_kulkas_microservice_flutter/services/chat_service.dart';
 import '../models/profile_model.dart';
 import '../services/profile_service.dart';
 
@@ -10,6 +12,7 @@ class ProfileViewModel extends ChangeNotifier {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
+  final RecipeService _recipeService = RecipeService();
 
   // State variables
   List<Profile> _profiles = [];
@@ -22,6 +25,9 @@ class ProfileViewModel extends ChangeNotifier {
   Profile? get currentProfile => _currentProfile;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  List<Recipe> _recipes = [];
+  List<Recipe> get recipes => _recipes;
 
   // Set loading state
   void _setLoading(bool loading) {
@@ -51,6 +57,19 @@ class ProfileViewModel extends ChangeNotifier {
       if (_profiles.isNotEmpty) {
         _currentProfile = _profiles.first;
       }
+      notifyListeners();
+    } catch (e) {
+      _setError(e.toString());
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<void> loadRecipes() async {
+    _setLoading(true);
+    _setError(null);
+    try {
+      _recipes = await _recipeService.getAllRecipes();
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
