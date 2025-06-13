@@ -34,7 +34,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           widget.recipeTitle,
           style: const TextStyle(fontSize: 16),
         ),
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.blue,
         centerTitle: true,
       ),
       body: FutureBuilder<RecipeDetail>(
@@ -159,7 +159,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                     children: [
                       if (recipe.vegetarian) _buildTag('Vegetarian', Colors.green),
                       if (recipe.vegan) _buildTag('Vegan', Colors.lightGreen),
-                      if (recipe.glutenFree) _buildTag('Gluten Free', Colors.orange),
+                      if (recipe.glutenFree) _buildTag('Gluten Free', Colors.blue),
                       if (recipe.dairyFree) _buildTag('Dairy Free', Colors.blue),
                       if (recipe.veryHealthy) _buildTag('Very Healthy', Colors.teal),
                     ],
@@ -234,9 +234,9 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.orange[50],
+                        color: Colors.blue[50],
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.orange[200]!),
+                        border: Border.all(color: Colors.blue[200]!),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +245,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                             width: 30,
                             height: 30,
                             decoration: BoxDecoration(
-                              color: Colors.deepOrange,
+                              color: Colors.blue,
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: Center(
@@ -333,7 +333,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: Colors.deepOrange),
+          Icon(icon, color: Colors.blue),
           const SizedBox(height: 4),
           Text(
             value,

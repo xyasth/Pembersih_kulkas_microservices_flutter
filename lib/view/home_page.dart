@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage> {
         controller: _searchController,
         decoration: InputDecoration(
           hintText: 'Cari resep makanan...',
-          prefixIcon: const Icon(Icons.search, color: Colors.deepOrange),
+          prefixIcon: const Icon(Icons.search, color: Colors.blue),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
                   icon: const Icon(Icons.clear, color: Colors.grey),
@@ -220,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Coba Lagi'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
+                  backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -347,12 +347,12 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           children: [
                             Icon(Icons.play_arrow, 
-                                 color: Colors.deepOrange, size: 16),
+                                 color: Colors.blue, size: 16),
                             const SizedBox(width: 4),
                             Text(
                               'Tonton Video',
                               style: TextStyle(
-                                color: Colors.deepOrange,
+                                color: Colors.blue,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -420,7 +420,7 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrange,
+                backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
@@ -520,7 +520,7 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'Lihat Detail',
                           style: TextStyle(
-                            color: Colors.deepOrange,
+                            color: Colors.blue,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -528,7 +528,7 @@ class _HomePageState extends State<HomePage> {
                         Icon(
                           Icons.arrow_forward_ios,
                           size: 12,
-                          color: Colors.deepOrange,
+                          color: Colors.blue,
                         ),
                       ],
                     ),
@@ -549,7 +549,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text('Resep Makanan'),
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.blue,
         centerTitle: true,
         elevation: 0,
       ),
@@ -570,7 +570,7 @@ class _HomePageState extends State<HomePage> {
                           child: Row(
                             children: [
                               Icon(Icons.video_library, 
-                                   color: Colors.deepOrange, size: 20),
+                                   color: Colors.blue, size: 20),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(

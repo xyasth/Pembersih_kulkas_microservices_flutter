@@ -53,7 +53,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Recipe Manager'),
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
           bottom: TabBar(
             controller: _tabController,
@@ -182,7 +182,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -526,7 +526,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
@@ -569,7 +569,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
           children: [
             Row(
               children: [
-                const Icon(Icons.auto_awesome, color: Colors.deepPurple),
+                const Icon(Icons.auto_awesome, color: Colors.blue),
                 const SizedBox(width: 8),
                 const Text(
                   'Generated Recipe',
@@ -641,7 +641,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                     recipe.generatedByAI
                         ? Icons.auto_awesome
                         : Icons.restaurant,
-                    color: Colors.deepPurple,
+                    color: Colors.blue,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -659,13 +659,13 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.deepPurple.shade100,
+                    color: Colors.blue.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     'AI Generated',
                     style: TextStyle(
-                      color: Colors.deepPurple.shade800,
+                      color: Colors.blue.shade800,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -760,7 +760,7 @@ class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
                                 children: [
                                   CircleAvatar(
                                     radius: 12,
-                                    backgroundColor: Colors.deepPurple,
+                                    backgroundColor: Colors.blue,
                                     child: Text(
                                       '${entry.key + 1}',
                                       style: const TextStyle(
