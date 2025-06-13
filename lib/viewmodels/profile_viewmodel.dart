@@ -16,6 +16,7 @@ class ProfileViewModel extends ChangeNotifier {
   final TextEditingController searchController = TextEditingController();
   final RecipeService _recipeService = RecipeService();
 
+
   // State variables
   List<Profile> _profiles = [];
   Profile? _currentProfile;
@@ -79,6 +80,8 @@ class ProfileViewModel extends ChangeNotifier {
       return 'Nama terlalu pendek. Minimal 2 karakter.';
     } else if (error.toString().contains('Network error')) {
       return 'Terjadi kesalahan jaringan. Periksa koneksi internet Anda.';
+    } else if (error.toString().contains('RecipeService')) {
+      return 'Service resep saat ini tidak tersedia. Silakan cek kembali nanti.';
     }
 
     // Generic error message
@@ -110,10 +113,9 @@ class ProfileViewModel extends ChangeNotifier {
     _setError(null);
     try {
       _recipes = await _recipeService.getAllRecipes();
-      notifyListeners();
     } catch (e) {
-      final errorMessage = _handleError(e);
-      _setError(errorMessage);
+      _setError(_handleError(e));
+      _recipes = [];
     } finally {
       _setLoading(false);
     }
