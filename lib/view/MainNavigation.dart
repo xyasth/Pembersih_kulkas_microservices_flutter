@@ -3,9 +3,12 @@ import 'package:pembersih_kulkas_microservice_flutter/view/home_page.dart';
 import '../view/chat_page.dart';
 import '../view/profile_page.dart';
 import '../view/kulkasku_page.dart';
+import '../models/profile_model.dart';
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+  final Profile user;
+
+  const MainNavigation({super.key, required this.user});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
