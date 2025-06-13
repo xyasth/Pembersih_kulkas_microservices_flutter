@@ -3,13 +3,15 @@ import '../models/kulkasku_model.dart';
 import 'kulkasku_service.dart';
 
 class IngredientService {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService;
+
+  IngredientService({required ApiService apiService}) : _apiService = apiService;
 
   Future<List<Ingredient>> getAllIngredients() async {
     return await _apiService.getIngredients();
   }
 
-  Future<Ingredient?> getIngredient(String id) async {
+  Future<Ingredient?> getIngredient(int id) async {
     return await _apiService.getIngredientById(id);
   }
 
@@ -23,7 +25,7 @@ class IngredientService {
       name: name,
       quantity: quantity,
       unit: unit,
-      userId: ApiService.userId,
+      userId: _apiService.userId, // ✅ get from injected service
     );
 
     return await _apiService.addIngredient(ingredient);

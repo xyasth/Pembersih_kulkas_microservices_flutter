@@ -5,8 +5,8 @@ import '../models/kulkasku_model.dart';
 class ApiService {
   static const String baseUrl =
       'http://localhost:8000'; // Replace with your actual URL
-  static const String userId = 'user123'; // Replace with actual user management
-
+  late final int userId; 
+  ApiService({required this.userId});
   // Add ingredient
   Future<Ingredient?> addIngredient(Ingredient ingredient) async {
     try {
@@ -35,10 +35,19 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        return data.map((json) => Ingredient.fromJson(json)).toList();
+        final body = jsonDecode(response.body);
+
+        // ✅ Check if the response is a valid list
+        if (body is List) {
+          return body.map((json) => Ingredient.fromJson(json)).toList();
+        } else {
+          print('❌ Expected list, got: $body');
+          return [];
+        }
+      } else {
+        print('❌ Server returned ${response.statusCode}: ${response.body}');
+        return [];
       }
-      return [];
     } catch (e) {
       print('Error fetching ingredients: $e');
       return [];
@@ -46,7 +55,7 @@ class ApiService {
   }
 
   // Get ingredient by ID
-  Future<Ingredient?> getIngredientById(String id) async {
+  Future<Ingredient?> getIngredientById(int id) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/ingredients/$id'),

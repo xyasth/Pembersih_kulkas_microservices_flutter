@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import '../services/ingredient_service.dart';
 
 class AddIngredientView extends StatefulWidget {
+  final IngredientService ingredientService;
   final VoidCallback onIngredientAdded;
 
-  const AddIngredientView({Key? key, required this.onIngredientAdded})
-      : super(key: key);
+  const AddIngredientView({
+    super.key,
+    required this.ingredientService,
+    required this.onIngredientAdded,
+  });
 
   @override
   _AddIngredientViewState createState() => _AddIngredientViewState();
@@ -16,8 +20,15 @@ class _AddIngredientViewState extends State<AddIngredientView> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _quantityController = TextEditingController();
+  late final IngredientService _ingredientService;
   String _selectedUnit = 'g';
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ingredientService = widget.ingredientService; 
+  }
 
   final List<String> _units = [
     'g',
@@ -29,8 +40,6 @@ class _AddIngredientViewState extends State<AddIngredientView> {
     'tbsp',
     'tsp'
   ];
-
-  final IngredientService _ingredientService = IngredientService();
 
   Future<void> _addIngredient() async {
     if (!_formKey.currentState!.validate()) return;

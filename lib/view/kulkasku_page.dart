@@ -2,24 +2,34 @@
 import 'package:flutter/material.dart';
 import '../models/kulkasku_model.dart';
 import '../services/ingredient_service.dart';
+import '../services/kulkasku_service.dart';
 import 'addIngredientsview.dart';
 import 'EditIngredientsView.dart';
 
-class IngredientsListView extends StatefulWidget {
+class Kulkaskuview extends StatefulWidget {
+  final int userId;
+  const Kulkaskuview({super.key, required this.userId});
   @override
-  _IngredientsListViewState createState() => _IngredientsListViewState();
+  _KulkaskuviewState createState() => _KulkaskuviewState();
 }
 
-class _IngredientsListViewState extends State<IngredientsListView> {
-  final IngredientService _ingredientService = IngredientService();
+class _KulkaskuviewState extends State<Kulkaskuview> {
+  late final IngredientService _ingredientService;
   List<Ingredient> _ingredients = [];
   bool _isLoading = false;
 
   @override
-  void initState() {
-    super.initState();
-    _loadIngredients();
-  }
+void initState() {
+  super.initState();
+
+  final apiService = ApiService(
+    userId: widget.userId,
+  );
+
+  _ingredientService = IngredientService(apiService: apiService);
+
+  _loadIngredients();
+}
 
   Future<void> _loadIngredients() async {
     setState(() => _isLoading = true);
@@ -145,6 +155,7 @@ class _IngredientsListViewState extends State<IngredientsListView> {
                                   MaterialPageRoute(
                                     builder: (context) => EditIngredientView(
                                       ingredient: ingredient,
+                                      ingredientService: _ingredientService,
                                       onIngredientUpdated: _loadIngredients,
                                     ),
                                   ),
@@ -187,6 +198,7 @@ class _IngredientsListViewState extends State<IngredientsListView> {
             context,
             MaterialPageRoute(
               builder: (context) => AddIngredientView(
+                ingredientService: _ingredientService,
                 onIngredientAdded: _loadIngredients,
               ),
             ),

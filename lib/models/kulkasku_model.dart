@@ -1,9 +1,10 @@
+
 class Ingredient {
   final String id;
   final String name;
   final int quantity;
   final String unit;
-  final String userId;
+  final int userId;
 
   Ingredient({
     required this.id,
@@ -38,7 +39,7 @@ class Ingredient {
     String? name,
     int? quantity,
     String? unit,
-    String? userId,
+    int? userId,
   }) {
     return Ingredient(
       id: id ?? this.id,

@@ -6,11 +6,13 @@ import '../services/ingredient_service.dart';
 class EditIngredientView extends StatefulWidget {
   final Ingredient ingredient;
   final VoidCallback onIngredientUpdated;
+  final IngredientService ingredientService;
 
   const EditIngredientView({
     Key? key,
     required this.ingredient,
     required this.onIngredientUpdated,
+    required this.ingredientService,
   }) : super(key: key);
 
   @override
@@ -35,16 +37,18 @@ class _EditIngredientViewState extends State<EditIngredientView> {
     'tsp'
   ];
 
-  final IngredientService _ingredientService = IngredientService();
+  late final IngredientService _ingredientService;
 
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.ingredient.name);
-    _quantityController =
-        TextEditingController(text: widget.ingredient.quantity.toString());
-    _selectedUnit = widget.ingredient.unit;
-  }
+@override
+void initState() {
+  super.initState();
+  _ingredientService = widget.ingredientService;
+
+  _nameController = TextEditingController(text: widget.ingredient.name);
+  _quantityController =
+      TextEditingController(text: widget.ingredient.quantity.toString());
+  _selectedUnit = widget.ingredient.unit;
+}
 
   Future<void> _updateIngredient() async {
     if (!_formKey.currentState!.validate()) return;

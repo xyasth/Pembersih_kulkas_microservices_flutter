@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pembersih_kulkas_microservice_flutter/view/MainNavigation.dart';
-import 'package:pembersih_kulkas_microservice_flutter/view/chat_page.dart';
 import 'package:pembersih_kulkas_microservice_flutter/view/Login_page.dart';
+import 'package:pembersih_kulkas_microservice_flutter/view/MainNavigation.dart';
 import 'package:pembersih_kulkas_microservice_flutter/view/Register_page.dart';
+import 'package:pembersih_kulkas_microservice_flutter/view/chat_page.dart';
 
 void main() {
   runApp(const MyApp());
