@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Your App',
+      title: 'Pembersih Kulkas Microservice',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: const MainNavigation(),
       debugShowCheckedModeBanner: false,

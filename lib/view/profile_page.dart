@@ -13,7 +13,7 @@ class ProfilePage extends StatelessWidget {
       create: (_) {
         final vm = ProfileViewModel();
         vm.loadProfiles();
-        vm.loadRecipes(); // Panggil load resep di sini
+        vm.loadRecipes();
         return vm;
       },
       child: Scaffold(
@@ -21,49 +21,192 @@ class ProfilePage extends StatelessWidget {
           title: const Text('User Profile'),
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                final vm = Provider.of<ProfileViewModel>(context, listen: false);
+                vm.loadProfiles();
+                vm.loadRecipes();
+              },
+              tooltip: 'Refresh',
+            ),
+          ],
         ),
         body: Consumer<ProfileViewModel>(
           builder: (context, viewModel, child) {
-            final profile = viewModel.currentProfile;
-            final error = viewModel.error;
-
-            if (error != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(error),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                viewModel.clearError();
-              });
-            }
-
-            return viewModel.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : profile == null
-                    ? const Center(child: Text('No profile found.'))
-                    : Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildProfileSection(profile),
-                            const SizedBox(height: 24),
-                            const Text(
-                              'Recipe List',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 12),
-                            Expanded(
-                              child: _buildRecipeList(viewModel.recipes),
-                            ),
-                          ],
-                        ),
-                      );
+            return _buildBody(context, viewModel);
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, ProfileViewModel viewModel) {
+    // Handle error display
+    if (viewModel.error != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorDialog(context, viewModel.error!, viewModel);
+      });
+    }
+
+    // Loading state
+    if (viewModel.isLoading) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Memuat data...'),
+          ],
+        ),
+      );
+    }
+
+    // Error state with retry option
+    if (viewModel.error != null && viewModel.profiles.isEmpty && viewModel.recipes.isEmpty) {
+      return _buildErrorState(context, viewModel);
+    }
+
+    // No profile state
+    if (viewModel.currentProfile == null && viewModel.profiles.isEmpty) {
+      return _buildNoProfileState(context, viewModel);
+    }
+
+    // Normal state
+    return _buildNormalState(viewModel);
+  }
+
+  Widget _buildErrorState(BuildContext context, ProfileViewModel viewModel) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Terjadi Kesalahan',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              viewModel.error ?? 'Kesalahan tidak diketahui',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                viewModel.clearError();
+                viewModel.loadProfiles();
+                viewModel.loadRecipes();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Coba Lagi'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoProfileState(BuildContext context, ProfileViewModel viewModel) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.person_outline,
+              size: 64,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Belum Ada Profil',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Belum ada profil yang terdaftar dalam sistem.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                viewModel.loadProfiles();
+                viewModel.loadRecipes();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Muat Ulang'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNormalState(ProfileViewModel viewModel) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Profile Section
+          if (viewModel.currentProfile != null) ...[
+            _buildProfileSection(viewModel.currentProfile!),
+            const SizedBox(height: 24),
+          ],
+          
+          // Recipe Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Daftar Resep',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '${viewModel.recipes.length} resep',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: _buildRecipeList(viewModel.recipes),
+          ),
+        ],
       ),
     );
   }
@@ -71,24 +214,85 @@ class ProfilePage extends StatelessWidget {
   Widget _buildProfileSection(Profile profile) {
     return Card(
       elevation: 2,
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.blue,
-          child: Text(
-            profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
-            style: const TextStyle(color: Colors.white),
-          ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: Colors.blue,
+              radius: 30,
+              child: Text(
+                profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    profile.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    profile.email,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        title: Text(profile.name,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(profile.email),
       ),
     );
   }
 
   Widget _buildRecipeList(List<Recipe> recipes) {
     if (recipes.isEmpty) {
-      return const Center(child: Text('No recipes found.'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.restaurant_menu_outlined,
+              size: 48,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Belum Ada Resep',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Resep akan ditampilkan di sini',
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return ListView.builder(
@@ -97,15 +301,123 @@ class ProfilePage extends StatelessWidget {
         final recipe = recipes[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            leading: const Icon(Icons.restaurant_menu, color: Colors.green),
-            title: Text(recipe.name),
-            subtitle: Text('Waktu memasak: ${recipe.cookingTime}'),
-            trailing: recipe.imageUrl != null
-                ? Image.network(recipe.imageUrl!,
-                    width: 50, height: 50, fit: BoxFit.cover)
-                : null,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
           ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(12),
+            leading: Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: recipe.imageUrl != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        recipe.imageUrl!,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.restaurant_menu,
+                            color: Colors.green,
+                            size: 30,
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return const Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : const Icon(
+                      Icons.restaurant_menu,
+                      color: Colors.green,
+                      size: 30,
+                    ),
+            ),
+            title: Text(
+              recipe.name,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+            subtitle: Text(
+              'Waktu memasak: ${recipe.cookingTime}',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+            trailing: const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
+            onTap: () {
+              // Handle recipe tap
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Resep: ${recipe.name}'),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String error, ProfileViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red),
+              SizedBox(width: 8),
+              Text('Terjadi Kesalahan'),
+            ],
+          ),
+          content: Text(error),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                viewModel.clearError();
+              },
+              child: const Text('Tutup'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                viewModel.clearError();
+                viewModel.loadProfiles();
+                viewModel.loadRecipes();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Coba Lagi'),
+            ),
+          ],
         );
       },
     );

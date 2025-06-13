@@ -45,6 +45,7 @@ class RecipeService {
   }
 
   // Get all recipes
+  // Get all recipes - PERBAIKAN
   Future<List<Recipe>> getAllRecipes() async {
     try {
       final response = await http.get(
@@ -52,15 +53,93 @@ class RecipeService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> recipesJson = jsonDecode(response.body);
-        return recipesJson.map((json) => Recipe.fromJson(json)).toList();
+        final dynamic responseData = jsonDecode(response.body);
+
+        // Debug: Print response untuk melihat struktur data
+        print('API Response: $responseData');
+        print('Response Type: ${responseData.runtimeType}');
+
+        // Cek apakah response adalah Map (object) atau List (array)
+        if (responseData is Map<String, dynamic>) {
+          // Jika response adalah object, cari key yang berisi array recipes
+          if (responseData.containsKey('recipes')) {
+            final List<dynamic> recipesJson = responseData['recipes'];
+            return recipesJson.map((json) => Recipe.fromJson(json)).toList();
+          } else if (responseData.containsKey('data')) {
+            final List<dynamic> recipesJson = responseData['data'];
+            return recipesJson.map((json) => Recipe.fromJson(json)).toList();
+          } else if (responseData.containsKey('results')) {
+            final List<dynamic> recipesJson = responseData['results'];
+            return recipesJson.map((json) => Recipe.fromJson(json)).toList();
+          } else {
+            // Jika tidak ada key yang dikenal, return empty list
+            print('Warning: Unexpected response structure');
+            return [];
+          }
+        } else if (responseData is List) {
+          // Jika response sudah berupa array
+          final List<dynamic> recipesJson = responseData;
+          return recipesJson.map((json) => Recipe.fromJson(json)).toList();
+        } else {
+          throw Exception(
+              'Unexpected response format: ${responseData.runtimeType}');
+        }
       } else {
-        throw Exception('Failed to get recipes: ${response.body}');
+        throw Exception(
+            'Failed to get recipes: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
+      print('Error in getAllRecipes: $e');
       throw Exception('Error getting recipes: $e');
     }
   }
+
+Future<List<Recipe>> getAllRecipesDebug() async {
+  try {
+    final response = await http.get(
+      Uri.parse('$baseUrl/chat/recipes'),
+    );
+
+    print('Status Code: ${response.statusCode}');
+    print('Response Headers: ${response.headers}');
+    print('Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final dynamic responseData = jsonDecode(response.body);
+      
+      // Detailed debugging
+      print('=== DEBUGGING RESPONSE ===');
+      print('Type: ${responseData.runtimeType}');
+      print('Content: $responseData');
+      
+      if (responseData is Map) {
+        print('Keys available: ${responseData.keys.toList()}');
+        
+        // Check common keys for recipes data
+        for (String key in ['recipes', 'data', 'results', 'items']) {
+          if (responseData.containsKey(key)) {
+            print('Found recipes in key: $key');
+            final recipesData = responseData[key];
+            if (recipesData is List) {
+              return recipesData.map((json) => Recipe.fromJson(json)).toList();
+            }
+          }
+        }
+      } else if (responseData is List) {
+        print('Response is already a List with ${responseData.length} items');
+        return responseData.map((json) => Recipe.fromJson(json)).toList();
+      }
+      
+      return [];
+    } else {
+      throw Exception('HTTP ${response.statusCode}: ${response.body}');
+    }
+  } catch (e) {
+    print('Detailed error: $e');
+    rethrow;
+  }
+}
+
 
   // Update a recipe
   Future<Map<String, dynamic>> updateRecipe(String id, Recipe recipe) async {

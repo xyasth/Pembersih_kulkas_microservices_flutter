@@ -4,6 +4,8 @@ import 'package:pembersih_kulkas_microservice_flutter/models/chat_model.dart';
 import 'package:pembersih_kulkas_microservice_flutter/services/chat_service.dart';
 import '../models/profile_model.dart';
 import '../services/profile_service.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class ProfileViewModel extends ChangeNotifier {
   final ProfileService _profileService = ProfileService();
@@ -47,7 +49,43 @@ class ProfileViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Load all profiles
+  // Enhanced error handling method
+  String _handleError(dynamic error) {
+    if (error is SocketException) {
+      return 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+    } else if (error is http.ClientException) {
+      return 'Gagal menghubungi server. Silakan coba lagi nanti.';
+    } else if (error is FormatException) {
+      return 'Data yang diterima dari server tidak valid.';
+    } else if (error.toString().contains('404')) {
+      return 'Data yang diminta tidak ditemukan.';
+    } else if (error.toString().contains('401')) {
+      return 'Akses ditolak. Silakan login kembali.';
+    } else if (error.toString().contains('403')) {
+      return 'Anda tidak memiliki izin untuk mengakses data ini.';
+    } else if (error.toString().contains('500')) {
+      return 'Terjadi kesalahan pada server. Silakan coba lagi nanti.';
+    } else if (error.toString().contains('timeout')) {
+      return 'Koneksi timeout. Silakan coba lagi.';
+    } else if (error.toString().contains('No profiles found')) {
+      return 'Belum ada profil yang terdaftar.';
+    } else if (error.toString().contains('Profile not found')) {
+      return 'Profil yang dicari tidak ditemukan.';
+    } else if (error.toString().contains('Email already exists')) {
+      return 'Email sudah terdaftar. Gunakan email lain.';
+    } else if (error.toString().contains('Invalid email format')) {
+      return 'Format email tidak valid.';
+    } else if (error.toString().contains('Name too short')) {
+      return 'Nama terlalu pendek. Minimal 2 karakter.';
+    } else if (error.toString().contains('Network error')) {
+      return 'Terjadi kesalahan jaringan. Periksa koneksi internet Anda.';
+    }
+
+    // Generic error message
+    return 'Terjadi kesalahan: ${error.toString()}';
+  }
+
+  // Load all profiles with better error handling
   Future<void> loadProfiles() async {
     _setLoading(true);
     _setError(null);
@@ -59,12 +97,14 @@ class ProfileViewModel extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      final errorMessage = _handleError(e);
+      _setError(errorMessage);
     } finally {
       _setLoading(false);
     }
   }
 
+  // Load recipes with better error handling
   Future<void> loadRecipes() async {
     _setLoading(true);
     _setError(null);
@@ -72,40 +112,54 @@ class ProfileViewModel extends ChangeNotifier {
       _recipes = await _recipeService.getAllRecipes();
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      final errorMessage = _handleError(e);
+      _setError(errorMessage);
     } finally {
       _setLoading(false);
     }
   }
 
-  // Load specific profile by ID
+  // Load specific profile by ID with better error handling
   Future<void> loadProfile(int id) async {
     _setLoading(true);
     _setError(null);
 
     try {
       _currentProfile = await _profileService.getProfile(id);
-      // Update form controllers with current profile data
-      nameController.text = _currentProfile!.name;
-      emailController.text = _currentProfile!.email;
+      if (_currentProfile != null) {
+        // Update form controllers with current profile data
+        nameController.text = _currentProfile!.name;
+        emailController.text = _currentProfile!.email;
+      }
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      final errorMessage = _handleError(e);
+      _setError(errorMessage);
     } finally {
       _setLoading(false);
     }
   }
 
-  // Create new profile
+  // Create new profile with enhanced validation and error handling
   Future<bool> createProfile() async {
-    if (nameController.text.trim().isEmpty ||
-        emailController.text.trim().isEmpty) {
-      _setError('Name and email are required');
+    // Client-side validation
+    if (nameController.text.trim().isEmpty) {
+      _setError('Nama tidak boleh kosong');
+      return false;
+    }
+
+    if (nameController.text.trim().length < 2) {
+      _setError('Nama minimal 2 karakter');
+      return false;
+    }
+
+    if (emailController.text.trim().isEmpty) {
+      _setError('Email tidak boleh kosong');
       return false;
     }
 
     if (!_isValidEmail(emailController.text.trim())) {
-      _setError('Please enter a valid email address');
+      _setError('Format email tidak valid');
       return false;
     }
 
@@ -125,28 +179,39 @@ class ProfileViewModel extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(e.toString());
+      final errorMessage = _handleError(e);
+      _setError(errorMessage);
       return false;
     } finally {
       _setLoading(false);
     }
   }
 
-  // Update existing profile
+  // Update existing profile with better error handling
   Future<bool> updateProfile() async {
     if (_currentProfile == null) {
-      _setError('No profile selected for update');
+      _setError('Tidak ada profil yang dipilih untuk diupdate');
       return false;
     }
 
-    if (nameController.text.trim().isEmpty ||
-        emailController.text.trim().isEmpty) {
-      _setError('Name and email are required');
+    // Client-side validation
+    if (nameController.text.trim().isEmpty) {
+      _setError('Nama tidak boleh kosong');
+      return false;
+    }
+
+    if (nameController.text.trim().length < 2) {
+      _setError('Nama minimal 2 karakter');
+      return false;
+    }
+
+    if (emailController.text.trim().isEmpty) {
+      _setError('Email tidak boleh kosong');
       return false;
     }
 
     if (!_isValidEmail(emailController.text.trim())) {
-      _setError('Please enter a valid email address');
+      _setError('Format email tidak valid');
       return false;
     }
 
@@ -171,14 +236,15 @@ class ProfileViewModel extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(e.toString());
+      final errorMessage = _handleError(e);
+      _setError(errorMessage);
       return false;
     } finally {
       _setLoading(false);
     }
   }
 
-  // Delete profile
+  // Delete profile with better error handling
   Future<bool> deleteProfile(int id) async {
     _setLoading(true);
     _setError(null);
@@ -192,17 +258,21 @@ class ProfileViewModel extends ChangeNotifier {
           clearForm();
         }
         notifyListeners();
+        return true;
+      } else {
+        _setError('Gagal menghapus profil');
+        return false;
       }
-      return success;
     } catch (e) {
-      _setError(e.toString());
+      final errorMessage = _handleError(e);
+      _setError(errorMessage);
       return false;
     } finally {
       _setLoading(false);
     }
   }
 
-  // Search profiles
+  // Search profiles with better error handling
   Future<void> searchProfiles(String query) async {
     if (query.trim().isEmpty) {
       await loadProfiles();
@@ -216,7 +286,8 @@ class ProfileViewModel extends ChangeNotifier {
       _profiles = await _profileService.searchProfiles(query.trim());
       notifyListeners();
     } catch (e) {
-      _setError(e.toString());
+      final errorMessage = _handleError(e);
+      _setError(errorMessage);
     } finally {
       _setLoading(false);
     }
@@ -239,9 +310,10 @@ class ProfileViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Email validation
+  // Enhanced email validation
   bool _isValidEmail(String email) {
-    return RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(email);
+    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        .hasMatch(email);
   }
 
   @override
