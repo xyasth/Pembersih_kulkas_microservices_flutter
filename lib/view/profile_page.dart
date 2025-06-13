@@ -19,25 +19,41 @@ class ProfilePage extends StatelessWidget {
         body: Consumer<ProfileViewModel>(
           builder: (context, viewModel, child) {
             final profile = viewModel.currentProfile;
-            return profile == null
+            final error = viewModel.error;
+
+            if (error != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(error),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                viewModel.clearError();
+              });
+            }
+
+            return viewModel.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildProfileSection(profile),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'Service History',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                : profile == null
+                    ? const Center(child: Text('No profile found.'))
+                    : Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildProfileSection(profile),
+                            const SizedBox(height: 24),
+                            const Text(
+                              'Service History',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 12),
+                            Expanded(child: _buildServiceHistoryList()),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        Expanded(child: _buildServiceHistoryList()),
-                      ],
-                    ),
-                  );
+                      );
           },
         ),
       ),
@@ -51,8 +67,9 @@ class ProfilePage extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: Colors.blue,
           child: Text(
-              profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
-              style: const TextStyle(color: Colors.white)),
+            profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
         title: Text(profile.name,
             style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -63,12 +80,13 @@ class ProfilePage extends StatelessWidget {
 
   Widget _buildServiceHistoryList() {
     final dummyHistory = List.generate(
-        5,
-        (index) => {
-              'title': 'Service #${index + 1}',
-              'description': 'Detail of service performed...',
-              'date': '2025-06-${10 + index}'
-            });
+      5,
+      (index) => {
+        'title': 'Service #${index + 1}',
+        'description': 'Detail of service performed...',
+        'date': '2025-06-${10 + index}'
+      },
+    );
 
     return ListView.builder(
       itemCount: dummyHistory.length,
