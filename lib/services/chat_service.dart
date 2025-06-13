@@ -44,6 +44,7 @@ class RecipeService {
     }
   }
 
+  // Get all recipes
   Future<List<Recipe>> getAllRecipes() async {
     try {
       final response = await http.get(
